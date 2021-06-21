@@ -22,7 +22,7 @@ def serializeData(public_key, data):
 	encrypted_data_list = [public_key.encrypt(x) for x in data]
 	encrypted_data={}
 	encrypted_data['public_key'] = {'n': public_key.n}
-	encrypted_data['values'] = [(str(x.ciphertext()), x.exponent) for x in         encrypted_data_list]
+	encrypted_data['values'] = [(str(x.ciphertext()), x.exponent) for x in encrypted_data_list]
 	serialized = json.dumps(encrypted_data)
 	return serialized
 
@@ -32,6 +32,10 @@ def loadAnswer():
             answer=json.loads(ans)
             return answer
 
+
+"""
+
+# send_data(): to the company
 pub_key, priv_key = getKeys()
 data = age, he, al, gen = [24,4,6,1]
 serializeData(pub_key, data)
@@ -39,9 +43,11 @@ datafile=serializeData(pub_key, data)
 with open('data.json', 'w') as file: 
     json.dump(datafile, file)
 
-#3
+#3 get_data() answer from the company 
 answer_file=loadAnswer()
 answer_key=paillier.PaillierPublicKey(n=int(answer_file['pubkey']['n']))
 answer = paillier.EncryptedNumber(answer_key, int(answer_file['values'][0]), int(answer_file['values'][1]))
 if (answer_key==pub_key):
     print(priv_key.decrypt(answer))
+	
+"""

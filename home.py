@@ -2,17 +2,17 @@ import os
 import sys
 from tkinter import *
 import tkinter as tk
-from tkinter import ttk
+#from tkinter import ttk
 import phe as paillier
 import json
 from linmodel import LinModel
 
-
+    
 root = Tk()
 
 root.geometry("1080x720") 
 
-################################customer status ####################
+################################ customer status ####################
 custFrame=Frame(root, width=250, height=550, bg='#ffffff')
 custFrame.pack()
 custFrame.place(x=310,y=200)
@@ -31,8 +31,8 @@ t_com.pack()
 t_com.place(x=0,y=0)
 #t_com.insert(tk.END,str(datafile))
 
-
-
+# CUSTOMER ACTIVITIES 
+# cUSTOEMR: FUNCTION TO STORE PUBLIC AND PRIVATE KEYS
 def storeKeys():
 	public_key, private_key = paillier.generate_paillier_keypair()
 	keys={}
@@ -43,6 +43,7 @@ def storeKeys():
 		t.delete('1.0', tk.END)
 		t.insert(tk.END,str(keys))
 
+# CUSTOMER: FUCTION TO GET THE PUBLIC AND PRIVATE KEYS
 def getKeys():
 	with open('custkeys.json', 'r') as file: 
 		keys=json.load(file)
@@ -50,24 +51,21 @@ def getKeys():
 		priv_key=paillier.PaillierPrivateKey(pub_key,keys['private_key']['p'],keys['private_key']['q'])
 		return pub_key, priv_key 
 
+#CUSTOMER: ENCRYPT THE DATA USING ITS PUCLIC KEY AND RETURN THE DATA
 def serializeData(public_key, data):
 	encrypted_data_list = [public_key.encrypt(x) for x in data]
 	encrypted_data={}
 	encrypted_data['public_key'] = {'n': public_key.n}
-	encrypted_data['values'] = [(str(x.ciphertext()), x.exponent) for x in         encrypted_data_list]
+	encrypted_data['values'] = [(str(x.ciphertext()), x.exponent) for x in encrypted_data_list]
 	serialized = json.dumps(encrypted_data)
 	return serialized
 
-def loadAnswer():
-    with open('answer.json', 'r') as file:
-            ans=json.load(file)
-            answer=json.loads(ans)
-            return answer
 
+#CUSTOMER: ENCRYPT THE DATA TAKEN FROM USER AND SAVE THE FILE (SEND TO THE COMPANY)
 def send_data():
     pub_key, priv_key = getKeys()
     data = [int(e_age.get()),int(e_eat.get()),int(e_life.get()),int(e_gen.get())]
-    serializeData(pub_key, data)
+    #serializeData(pub_key, data)
     datafile=serializeData(pub_key, data)
     with open('data.json', 'w') as file: 
         json.dump(datafile, file)
@@ -75,6 +73,13 @@ def send_data():
         t_com.insert(tk.END,str(datafile))
     return pub_key, priv_key, data
 
+
+#CUSTOMER: LOAD THE ANSWER SEND BY THE COMPANY
+def loadAnswer():
+    with open('answer.json', 'r') as file:
+            ans=json.load(file)
+            answer=json.loads(ans)
+            return answer
 
 def get_data():
     pub_key, priv_key = getKeys()
@@ -85,7 +90,6 @@ def get_data():
         print(priv_key.decrypt(answer))
         t.delete('1.0', tk.END)
         t.insert(tk.END,str(priv_key.decrypt(answer)))
-
 
 
 
@@ -105,7 +109,7 @@ lcom = Label(root,bg="white", text="Company" ,fg="black", font=("",30))
 lcom.pack()
 lcom.place(x=600,y=140)
   
-
+# COMPANY: FUCNTION TO RUN MODEL 
 def linm():
     os.system('linmodel.py')
     #label_status = Label(root,text =LinModel().getCoef(),fg = "blue")
@@ -156,8 +160,7 @@ bcal3.pack()
 bcal3.place(x=50,y=550)
 
 
-
-
+#COMAPNY: INVOKES SERVER CALCULATION PROCEDURE TO PREDICT USING THE MODEL
 def servercalc():
     os.system('servercalc.py')
     #label_status = Label(comFrame,text =loadAnswer(),fg = "blue")
